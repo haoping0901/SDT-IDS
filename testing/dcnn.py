@@ -26,10 +26,13 @@ class SELayer(nn.Module):
 
 
 class DCNN(nn.Module):
-    def __init__(self, channel: int = 1, n_class: int = 2):
+    def __init__(self, channels: int = 1, n_classes: int = 2, 
+                 features: int = 16):
         super().__init__()
-        self.channel = channel
-        self.n_class = n_class
+        self.channels = channels
+        self.n_classes = n_classes
+        self.features = features
+
         self.num_kernels = 32
         self.kernel_size = 3
         self.kernel_growth_ratio = 2
@@ -40,8 +43,10 @@ class DCNN(nn.Module):
                                   * self.kernel_growth_ratio)
 
         # Start building model
-        self.conv1 = nn.Conv1d(self.channel, self.num_kernels, 
+        self.conv1 = nn.Conv1d(self.channels, self.num_kernels, 
                                self.kernel_size, padding="same")
+        # self.conv1 = nn.Conv1d(self.features, self.num_kernels, 
+        #                        self.kernel_size, padding="same")
         self.bn1 = nn.BatchNorm1d(self.num_kernels)
         self.selu1 = nn.SELU(inplace=True)
         self.se1 = SELayer(self.num_kernels, 
@@ -72,7 +77,7 @@ class DCNN(nn.Module):
         self.sconv = nn.Sequential(*sconvi)
 
         self.globalpool = nn.AdaptiveAvgPool1d(1)
-        self.output = nn.Linear(self.num_grown_kernels, self.n_class)
+        self.out = nn.Linear(self.num_grown_kernels, self.n_classes)
 
     def _sconv(self, in_channel: int, out_channel: int
                ) -> nn.Sequential:
@@ -92,8 +97,9 @@ class DCNN(nn.Module):
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
         # Due to the input shape would be the tabular task format
         # we may need to refit the shape of input
-        batch, channel, _, _ = x.size()
-        x = x.view(batch, channel, -1)
+        batch, channels, _, _ = x.size()
+        x = x.view(batch, channels, -1)
+        # x = x.view(batch, channels, -1).permute(0, 2, 1)
         
         x = self.conv1(x)
         x = self.bn1(x)
@@ -109,5 +115,5 @@ class DCNN(nn.Module):
         x = self.globalpool(x)
 
         x = torch.flatten(x, start_dim=1)
-        x = self.output(x)
+        x = self.out(x)
         return x

@@ -3,42 +3,16 @@ import torchvision
 import torchvision.transforms as transforms
 from typing import Dict
 
-SUBSET_MERGED = {
-    "train": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "subset/train_merged", 
-    "test": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-            + "subset/test_merged"}
-SUBSET_MERGED_ALL = {
-    "train": ("/home/EA301B/611410037/CICDDoS2019/" 
-              + "IGTD_Conversion/IGTD_all/train"), 
-    "test": ("/home/EA301B/611410037/CICDDoS2019/" 
-             + "IGTD_Conversion//IGTD_all/test")}
-SUBSET_MERGED_ALL_SPLIT = {
-    "train": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "IGTD_all_split/train", 
-    "test": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-            + "IGTD_all_split/test"}
-SUBEST_BINARY_MATCH = {
+BINARY_MATCH = {
     "train": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
               + "binary_match/train"), 
     "test": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "binary_match/test")
-}
-SUBSET_MERGED_ALL_MATCH = {
-    "train": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "IGTD_all_match/train", 
-    "test": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-            + "IGTD_all_match/test"}
-SUBSET_DIVIDED = {
-    "train": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "subset/train_divided", 
-    "test": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-            + "subset/test_divided"}
-SUBSET_DIVIDED_MATCH = {
-    "train": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "subset_match/train", 
-    "test": "/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-            + "subset_match/test"}
+             + "binary_match/test")}
+MULTI_MATCH = {
+    "train": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
+              + "multiclass_match/train"), 
+    "test": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
+             + "multiclass_match/test")}
 
 def make_dataloader(config: dict) -> Dict[data.DataLoader, 
                                           data.DataLoader]:
@@ -50,20 +24,10 @@ def make_dataloader(config: dict) -> Dict[data.DataLoader,
         transforms.ToTensor()])
     
     match config["data_set"]:
-        case "merged":
-            datapath = SUBSET_MERGED
-        case "merged_all":
-            datapath = SUBSET_MERGED_ALL
         case "binary_match":
-            datapath = SUBEST_BINARY_MATCH
-        case "merged_all_match":
-            datapath = SUBSET_MERGED_ALL_MATCH
-        case "merged_all_split":
-            datapath = SUBSET_MERGED_ALL_SPLIT
-        case "divided":
-            datapath = SUBSET_DIVIDED
-        case "divided_match":
-            datapath = SUBSET_DIVIDED_MATCH
+            datapath = BINARY_MATCH
+        case "multi_match":
+            datapath = MULTI_MATCH
 
     data_loader = dict()
     trainset = torchvision.datasets.ImageFolder(

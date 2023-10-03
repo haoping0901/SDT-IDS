@@ -3,7 +3,7 @@ import vit_pytorch
 import torch
 import sys
 sys.path.insert(1, "../testing")
-from testing import lnn, dcnn, xgbfs_cnn_lstm
+from testing import lnn, dcnn, xgbfs_cnn_lstm, anova_dnn, aemlp, lucid
 
 config = {}
 HYPERPARAMETERS = {}
@@ -16,8 +16,9 @@ HYPERPARAMETERS = {}
     "-ds", "--data-set", default="binary_match", show_default=True, 
     type=click.STRING, help="specify the dataset to be used")
 @click.option(
-    "-nc", "--num-classes", type=click.IntRange(0, min_open=True), 
-    required=True, help="specify the number of classes")
+    "-nc", "--num-classes", default=2, show_default=True, 
+    type=click.IntRange(0, min_open=True), 
+    help="specify the number of classes")
 @click.option(
     "-is", "--image-size", default=4, show_default=True, 
     type=click.IntRange(0, min_open=True, max_open=True), 
@@ -27,7 +28,7 @@ HYPERPARAMETERS = {}
     type=click.IntRange(0, min_open=True, max_open=True), 
     help="specify the patch size")
 @click.option(
-    "-ch", "--channel", default=3, show_default=True, type=click.INT, 
+    "-ch", "--channel", default=1, show_default=True, type=click.INT, 
     help="specify the number of image channel")
 @click.option(
     "-dim", default=8, show_default=True, 
@@ -83,93 +84,121 @@ def set_model(model, image_size, patch_size, channel, num_classes,
     config["epoch"] = epoch
     config["data_set"] = data_set
     HYPERPARAMETERS["image_size"] = image_size
-    HYPERPARAMETERS["patch_size"] = patch_size
     HYPERPARAMETERS["channel"] = channel
     HYPERPARAMETERS["num_classes"] = num_classes
-    HYPERPARAMETERS["dim"] = dim
-    HYPERPARAMETERS["mlp_dim"] = mlp_dim
-    HYPERPARAMETERS["depth"] = depth
-    HYPERPARAMETERS["heads"] = heads
     HYPERPARAMETERS["batch_size"] = batch_size
     HYPERPARAMETERS["epoch"] = epoch
 
-    continue_epoch = 0
+    match model:
+        case "SimpleViT":
+            HYPERPARAMETERS["patch_size"] = patch_size
+            HYPERPARAMETERS["dim"] = dim
+            HYPERPARAMETERS["mlp_dim"] = mlp_dim
+            HYPERPARAMETERS["depth"] = depth
+            HYPERPARAMETERS["heads"] = heads
 
-    if model == "SimpleViT":
-        config["model"] = vit_pytorch.SimpleViT(
-            image_size=image_size,
-            patch_size=patch_size,
-            num_classes=num_classes,
-            dim=dim,
-            depth=depth,
-            heads=heads,
-            channels=channel, 
-            mlp_dim=mlp_dim
-        )
-        config["model_name"] = "SimpleViT"
-        config["model_config"] = (
-            "SimpleViT_is" + str(image_size) + "_ps" + str(patch_size) 
-            + "_ch" + str(channel) + "_nc" + str(num_classes) + "_dim" 
-            + str(dim) + "_md" + str(mlp_dim) + "_dp" + str(depth) 
-            + "_h" + str(heads) + "_bs" + str(batch_size))
-    elif model == "ViT":
-        HYPERPARAMETERS["dropout"] = dropout
-        HYPERPARAMETERS["emb_dropout"] = emb_dropout
+            config["model"] = vit_pytorch.SimpleViT(
+                image_size=image_size,
+                patch_size=patch_size,
+                num_classes=num_classes,
+                dim=dim,
+                depth=depth,
+                heads=heads,
+                channels=channel, 
+                mlp_dim=mlp_dim
+            )
+            config["model_name"] = "SimpleViT"
+            config["model_config"] = (
+                "SimpleViT_is" + str(image_size) + "_ps" 
+                + str(patch_size) + "_ch" + str(channel) + "_nc" 
+                + str(num_classes) + "_dim" + str(dim) + "_md" 
+                + str(mlp_dim) + "_dp" + str(depth) + "_h" 
+                + str(heads))
+        case "ViT":
+            HYPERPARAMETERS["patch_size"] = patch_size
+            HYPERPARAMETERS["dim"] = dim
+            HYPERPARAMETERS["mlp_dim"] = mlp_dim
+            HYPERPARAMETERS["depth"] = depth
+            HYPERPARAMETERS["heads"] = heads
+            HYPERPARAMETERS["dropout"] = dropout
+            HYPERPARAMETERS["emb_dropout"] = emb_dropout
 
-        config["model"] = vit_pytorch.ViT(
-            image_size=image_size,
-            patch_size=patch_size,
-            num_classes=num_classes,
-            dim=dim,
-            depth=depth,
-            heads=heads,
-            mlp_dim=mlp_dim,
-            dropout=dropout,
-            emb_dropout=emb_dropout
-        )
-        config["model_name"] = "ViT"
-        config["model_config"] = (
-            "ViT_is" + str(image_size) + "_ps" + str(patch_size) 
-            + "_ch" + str(channel) + "_nc" + str(num_classes) + "_dim" 
-            + str(dim) + "_md" + str(mlp_dim) + "_dp" + str(depth) 
-            + "_h" + str(heads) + "_do" + str(dropout) + "_edo" 
-            + str(emb_dropout) + "_bs" + str(batch_size))
-    elif model == "lnn":
-        config["model"] = lnn.LNN(channel=channel, n_class=num_classes)
-        config["model_name"] = "LNN"
-        config["model_config"] = (
-            "LNN_is" + str(image_size) + "_ch" + str(channel) + "_nc" \
-            + str(num_classes) + "_bs" + str(batch_size))
-    elif model == "dcnn":
-        config["model"] = dcnn.DCNN(channel=channel, 
-                                    n_class=num_classes)
-        config["model_name"] = "DCNN"
-        config["model_config"] = (
-            "DCNN_is" + str(image_size) + "_ch" + str(channel) + "_nc" \
-            + str(num_classes) + "_bs" + str(batch_size))
-    elif model == "cnn_lstm":
-        config["model"] = xgbfs_cnn_lstm.CNN_LSTM(
-            channel=channel, n_classes=num_classes, 
-            features=image_size*image_size)
-        config["model_name"] = "CNN_LSTM"
-        config["model_config"] = (
-            "CNN_LSTM_is" + str(image_size) + "_ch" + str(channel) + "_nc" \
-            + str(num_classes) + "_bs" + str(batch_size))
+            config["model"] = vit_pytorch.ViT(
+                image_size=image_size,
+                patch_size=patch_size,
+                num_classes=num_classes,
+                dim=dim,
+                depth=depth,
+                heads=heads,
+                mlp_dim=mlp_dim,
+                dropout=dropout,
+                emb_dropout=emb_dropout
+            )
+            config["model_name"] = "ViT"
+            config["model_config"] = (
+                "ViT_is" + str(image_size) + "_ps" + str(patch_size) 
+                + "_ch" + str(channel) + "_nc" + str(num_classes) 
+                + "_dim" + str(dim) + "_md" + str(mlp_dim) + "_dp" 
+                + str(depth) + "_h" + str(heads) + "_do" 
+                + str(dropout) + "_edo" + str(emb_dropout))
+        case "lnn":
+            config["model"] = lnn.LNN(
+                channels=channel, n_classes=num_classes, 
+                features=image_size**2)
+            config["model_name"] = "LNN"
+            config["model_config"] = (
+                "LNN_is" + str(image_size) + "_ch" + str(channel) 
+                + "_nc" + str(num_classes))
+        case "dcnn":
+            config["model"] = dcnn.DCNN(
+                channels=channel, n_classes=num_classes, 
+                features=image_size**2)
+            config["model_name"] = "DCNN"
+            config["model_config"] = (
+                "DCNN_is" + str(image_size) + "_ch" + str(channel) 
+                + "_nc" + str(num_classes))
+        case "cnn_lstm":
+            config["model"] = xgbfs_cnn_lstm.CNN_LSTM(
+                channel=channel, n_classes=num_classes, 
+                features=image_size**2)
+            config["model_name"] = "CNN_LSTM"
+            config["model_config"] = (
+                "CNN_LSTM_is" + str(image_size) + "_ch" + str(channel) 
+                + "_nc" + str(num_classes))
+        case "anova_dnn":
+            config["model"] = anova_dnn.ANOVA_DNN(
+                channel=channel, n_classes=num_classes, 
+                features=image_size**2)
+            config["model_name"] = "ANOVA_DNN"
+            config["model_config"] = (
+                "ANOVA_DNN_is" + str(image_size) + "_ch" 
+                + str(channel) + "_nc" + str(num_classes))
+        case "aemlp":
+            config["model"] = aemlp.MLP(
+                n_classes=num_classes, in_features=image_size**2, 
+                input_img=True)
+            config["model_name"] = "AEMLP"
+            config["model_config"] = (
+                "AEMLP_is" + str(image_size) + "_ch" + str(channel) 
+                + "_nc" + str(num_classes))
+        case "lucid":
+            config["model"] = lucid.Lucid(
+                n_classes=num_classes, channels=channel, 
+                features=image_size**2)
+            config["model_name"] = "Lucid"
+            config["model_config"] = (
+                "Lucid_is" + str(image_size) + "_ch" + str(channel) 
+                + "_nc" + str(num_classes))
     
     # Load saved model if specified
     if continue_train:
         config["model"].load_state_dict(
             torch.load(saved_model_path, 
                         map_location=config["device"]))
-        continue_epoch += int(
+        config["epoch"] += int(
             saved_model_path.split("epo")[1].split('_')[0])
-    config["model_config"] += "_epo" + str(epoch+continue_epoch)
-
+    config["model_config"] += ("_bs" + str(batch_size) + "_epo" 
+                               + str(config["epoch"]))
     print(f"Model specified: {config['model_name']}")
     print(f"HYPERPARAMETERS spcified: {HYPERPARAMETERS}")
     return config
-
-# if __name__ == "__main__":
-#     set_model.main(standalone_mode=False)
-#     model = VitTemplate(hyperparameters=HYPERPARAMETERS)
-#     print(f"model: {model}")

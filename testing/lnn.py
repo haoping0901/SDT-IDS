@@ -58,9 +58,13 @@ class UnitB(nn.Module):
 
 
 class LNN(nn.Module):
-    def __init__(self, *args, channel: int = 1, n_class: int = 2, 
-                 **kwargs) -> None:
+    def __init__(self, *args, channels: int = 1, n_classes: int = 2, 
+                 features: int = 16, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.channels = channels
+        self.n_classes = n_classes
+        self.features = features
+
         self.num_kernels = 16
         self.kernel_size = 3
         self.kernel_growth_ratio = 4
@@ -71,8 +75,10 @@ class LNN(nn.Module):
                                   * self.kernel_growth_ratio)
 
         # Start building model
-        self.conv1 = nn.Conv1d(channel, self.num_kernels, 
+        self.conv1 = nn.Conv1d(self.channels, self.num_kernels, 
                                self.kernel_size, padding="same")
+        # self.conv1 = nn.Conv1d(self.features, self.num_kernels, 
+        #                        self.kernel_size, padding="same")
         self.bn1 = nn.BatchNorm1d(self.num_kernels)
         self.relu1 = nn.ReLU(inplace=True)
         
@@ -90,7 +96,7 @@ class LNN(nn.Module):
         self.unit_b = nn.Sequential(*unit_bi)
 
         self.globalpool = nn.AdaptiveAvgPool1d(1)
-        self.output = nn.Linear(self.num_grown_kernels, n_class)
+        self.out = nn.Linear(self.num_grown_kernels, self.n_classes)
 
     def _unit_a(self, in_channel: int, out_channel: int, 
                 ) -> nn.Sequential:
@@ -103,7 +109,8 @@ class LNN(nn.Module):
 
             # Depth-wise conv
             nn.Conv1d(kernel_expanded, kernel_expanded, 
-                      self.kernel_size, stride=2, 
+                    #   self.kernel_size, stride=2, 
+                      self.kernel_size, stride=2, padding=1, 
                       groups=kernel_expanded, bias=False), 
             nn.BatchNorm1d(kernel_expanded),
 
@@ -115,6 +122,7 @@ class LNN(nn.Module):
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
         batch, channels, _, _= x.size()
         x = x.view(batch, channels, -1)
+        # x = x.view(batch, channels, -1).permute(0, 2, 1)
         
         x = self.conv1(x)
         x = self.bn1(x)
@@ -124,5 +132,5 @@ class LNN(nn.Module):
         x = self.globalpool(x)
 
         x = torch.flatten(x, start_dim=1)
-        x = self.output(x)
+        x = self.out(x)
         return x
