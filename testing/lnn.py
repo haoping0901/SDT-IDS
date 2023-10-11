@@ -96,7 +96,7 @@ class LNN(nn.Module):
         self.unit_b = nn.Sequential(*unit_bi)
 
         self.globalpool = nn.AdaptiveAvgPool1d(1)
-        self.out = nn.Linear(self.num_grown_kernels, self.n_classes)
+        self.output = nn.Linear(self.num_grown_kernels, self.n_classes)
 
     def _unit_a(self, in_channel: int, out_channel: int, 
                 ) -> nn.Sequential:
@@ -132,5 +132,5 @@ class LNN(nn.Module):
         x = self.globalpool(x)
 
         x = torch.flatten(x, start_dim=1)
-        x = self.out(x)
+        x = self.output(x)
         return x

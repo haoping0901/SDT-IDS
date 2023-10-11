@@ -13,8 +13,8 @@ HYPERPARAMETERS = {}
     "-m", "--model", default="SimpleViT", show_default=True, 
     type=str, help="specify the model to be imported")
 @click.option(
-    "-ds", "--data-set", default="binary_match", show_default=True, 
-    type=click.STRING, help="specify the dataset to be used")
+    "--data-path", type=click.STRING, required=True, 
+    help=("specify the path to the dataset"))
 @click.option(
     "-nc", "--num-classes", default=2, show_default=True, 
     type=click.IntRange(0, min_open=True), 
@@ -43,7 +43,7 @@ HYPERPARAMETERS = {}
     type=click.IntRange(0, min_open=True, max_open=True), 
     help="specify the number of Transformer blocks")
 @click.option(
-    "-h", "--heads", default=1, show_default=True, 
+    "--heads", default=1, show_default=True, 
     type=click.IntRange(0, min_open=True, max_open=True), 
     help="specify the number of heads")
 @click.option(
@@ -69,11 +69,14 @@ HYPERPARAMETERS = {}
 @click.option(
     "--saved-model-path", type=click.STRING, 
     help="specify the saved model path")
-def set_model(model, image_size, patch_size, channel, num_classes, 
-              dim, depth, heads, mlp_dim, dropout, emb_dropout, 
-              cuda_id, batch_size, epoch, data_set, continue_train, 
-              saved_model_path) -> dict:
+def set_model( # data_set
+    model, data_path, num_classes, image_size, patch_size, 
+    channel, dim, mlp_dim, depth, heads, dropout, emb_dropout, 
+    cuda_id, batch_size, epoch, continue_train, saved_model_path
+    ) -> dict:
     """Sepcify the model and its hyperparameters."""
+    # config["data_set"] = data_set
+    config["data_path"] = data_path
     config["image_size"] = image_size
     config["channel"] = channel
     if cuda_id == -1:
@@ -82,10 +85,9 @@ def set_model(model, image_size, patch_size, channel, num_classes,
         config["device"] = torch.device(cuda_id)
     config["batch_size"] = batch_size
     config["epoch"] = epoch
-    config["data_set"] = data_set
+    HYPERPARAMETERS["num_classes"] = num_classes
     HYPERPARAMETERS["image_size"] = image_size
     HYPERPARAMETERS["channel"] = channel
-    HYPERPARAMETERS["num_classes"] = num_classes
     HYPERPARAMETERS["batch_size"] = batch_size
     HYPERPARAMETERS["epoch"] = epoch
 
@@ -104,8 +106,8 @@ def set_model(model, image_size, patch_size, channel, num_classes,
                 dim=dim,
                 depth=depth,
                 heads=heads,
+                mlp_dim=mlp_dim, 
                 channels=channel, 
-                mlp_dim=mlp_dim
             )
             config["model_name"] = "SimpleViT"
             config["model_config"] = (
@@ -175,8 +177,8 @@ def set_model(model, image_size, patch_size, channel, num_classes,
                 + str(channel) + "_nc" + str(num_classes))
         case "aemlp":
             config["model"] = aemlp.MLP(
-                n_classes=num_classes, in_features=image_size**2, 
-                input_img=True)
+                encoded_size=image_size**2, n_classes=num_classes, 
+                channels=channel, input_img=True)
             config["model_name"] = "AEMLP"
             config["model_config"] = (
                 "AEMLP_is" + str(image_size) + "_ch" + str(channel) 
@@ -201,4 +203,5 @@ def set_model(model, image_size, patch_size, channel, num_classes,
                                + str(config["epoch"]))
     print(f"Model specified: {config['model_name']}")
     print(f"HYPERPARAMETERS spcified: {HYPERPARAMETERS}")
+    
     return config

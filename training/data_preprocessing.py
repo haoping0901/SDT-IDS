@@ -3,17 +3,6 @@ import torchvision
 import torchvision.transforms as transforms
 from typing import Dict
 
-BINARY_MATCH = {
-    "train": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-              + "binary_match/train"), 
-    "test": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "binary_match/test")}
-MULTI_MATCH = {
-    "train": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-              + "multiclass_match/train"), 
-    "test": ("/home/EA301B/611410037/CICDDoS2019/IGTD_Conversion/" 
-             + "multiclass_match/test")}
-
 def make_dataloader(config: dict) -> Dict[data.DataLoader, 
                                           data.DataLoader]:
     # Load dataset into dataloader
@@ -23,20 +12,22 @@ def make_dataloader(config: dict) -> Dict[data.DataLoader,
                            config["image_size"])), 
         transforms.ToTensor()])
     
-    match config["data_set"]:
-        case "binary_match":
-            datapath = BINARY_MATCH
-        case "multi_match":
-            datapath = MULTI_MATCH
+    # match config["data_set"]:
+    #     case "binary_match":
+    #         datapath = BINARY_MATCH
+    #     case "multi_match":
+    #         datapath = MULTI_MATCH
 
     data_loader = dict()
     trainset = torchvision.datasets.ImageFolder(
-        root=datapath["train"], transform=transform)
+        # root=datapath["train"], transform=transform)
+        root=config["data_path"] + "/train/", transform=transform)
     data_loader["train"] = data.DataLoader(
         trainset, batch_size=config["batch_size"], shuffle=True, 
         num_workers=4)
     testset = torchvision.datasets.ImageFolder(
-        root=datapath["test"], transform=transform)
+        # root=datapath["test"], transform=transform)
+        root=config["data_path"] + "/test/", transform=transform)
     data_loader["test"]  = data.DataLoader(
         testset, batch_size=config["batch_size"], shuffle=True, 
         num_workers=4)

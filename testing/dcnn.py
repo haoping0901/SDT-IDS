@@ -77,7 +77,7 @@ class DCNN(nn.Module):
         self.sconv = nn.Sequential(*sconvi)
 
         self.globalpool = nn.AdaptiveAvgPool1d(1)
-        self.out = nn.Linear(self.num_grown_kernels, self.n_classes)
+        self.output = nn.Linear(self.num_grown_kernels, self.n_classes)
 
     def _sconv(self, in_channel: int, out_channel: int
                ) -> nn.Sequential:
@@ -115,5 +115,5 @@ class DCNN(nn.Module):
         x = self.globalpool(x)
 
         x = torch.flatten(x, start_dim=1)
-        x = self.out(x)
+        x = self.output(x)
         return x

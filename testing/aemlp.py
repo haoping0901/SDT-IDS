@@ -1,24 +1,26 @@
 import torch
 import torch.nn as nn
 
-ENCODED_DIM = 24
+ORIGINAL_INPUT = 77
 
 class AE_Encoder(nn.Module):
-    def __init__(self, *args, in_features: int = 77, 
+    def __init__(self, *args, in_features: int, encoded_size: int = 24, 
                  channels: int = 1, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.in_features = in_features
         self.channels = channels
+        self.encoded_size = encoded_size
 
-        self.enc1 = nn.Linear(self.in_features*self.channels, 32)
+        self.enc1 = nn.Linear(self.in_features, 32)
         self.relu1 = nn.ReLU(inplace=True)
-        self.enc2 = nn.Linear(32, ENCODED_DIM)
+        self.enc2 = nn.Linear(32, self.encoded_size*self.channels)
         self.relu2 = nn.ReLU(inplace=True)
 
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
-        batches, _, _, _ = x.size()
-        x = x.view(batches, -1)
+        # batches, _, _, _ = x.size()
+        # batches, *_ = x.size()
+        # x = x.view(batches, -1)
 
         x = self.enc1(x)
         x = self.relu1(x)
@@ -29,7 +31,7 @@ class AE_Encoder(nn.Module):
     
 
 class AE_Decoder(nn.Module):
-    def __init__(self, *args, in_features: int = 77, 
+    def __init__(self, *args, in_features: int, 
                  channels: int = 1, input_img: bool = True, **kwargs
                  ) -> None:
         super().__init__(*args, **kwargs)
@@ -56,16 +58,18 @@ class AE_Decoder(nn.Module):
         
         return x
 
+
 class MLP(nn.Module):
-    def __init__(self, *args, n_classes: int = 2, 
-                 in_features: int = 16, input_img: bool = True, 
-                 **kwargs) -> None:
+    def __init__(self, *args, encoded_size: int, n_classes: int = 2, 
+                 channels: int = 1, input_img: bool = True, **kwargs
+                 ) -> None:
         super().__init__(*args, **kwargs)
         self.n_classes = n_classes
-        self.in_features = in_features
+        self.encoded_size = encoded_size
+        self.channels = channels
         self.input_img = input_img
 
-        self.mlp1 = nn.Linear(self.in_features, 23)
+        self.mlp1 = nn.Linear(self.encoded_size*self.channels, 23)
         self.relu1 = nn.ReLU(inplace=True)
 
         self.mlp2 = nn.Linear(23, 15)
@@ -92,21 +96,24 @@ class MLP(nn.Module):
 
         return x
 
+
 class AEMLP(nn.Module):
-    def __init__(self, n_classes: int = 2, in_features: int = 77, 
+    def __init__(self, encoded_size: int, n_classes: int = 2, 
                  channels: int = 1):
         super().__init__()
         self.n_classes = n_classes
-        self.in_features = in_features
         self.channels = channels
+        self.encoded_size = encoded_size
 
         # Autoencoder part
-        self.enc = AE_Encoder(in_features=self.in_features, 
+        self.enc = AE_Encoder(in_features=ORIGINAL_INPUT, 
+                              encoded_size=self.encoded_size, 
                               channels=self.channels)
 
         # MLP part
-        self.mlp = MLP(n_classes=self.n_classes, 
-                       in_features=ENCODED_DIM)
+        self.mlp = MLP(encoded_size=encoded_size, 
+                       n_classes=self.n_classes, 
+                       channels=self.channels, input_img=False)
 
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
         x = self.enc(x)

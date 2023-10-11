@@ -23,17 +23,16 @@ def get_time() -> str:
 
 def train(
         dataloader: Dict[data.DataLoader, data.DataLoader], 
-        model: nn.Module, criterion: Any, optimizer: Any, 
-        dataset: str, epochs: int, device: torch.device, 
-        cur_dir: str = "", model_name: str = "", 
+        model: nn.Module, criterion: Any, optimizer: Any, epochs: int, 
+        device: torch.device, cur_dir: str = "", model_name: str = "", 
         model_config: str = "") -> None:
     best_loss = np.inf
     best_epoch = 0
     best_accuracy = 0.0
 
     # setup a tensorboard writer
-    dump_path = (cur_dir + "/checkpoints/" + dataset + '/' 
-                 + model_name + '/' + model_config + f"_{get_time()}/")
+    dump_path = (cur_dir + "/checkpoints/" + model_name + '/' 
+                 + model_config + f"_{get_time()}/")
     if not os.path.exists(dump_path):
         os.makedirs(dump_path)
     tb_writer = SummaryWriter(dump_path)
