@@ -1,4 +1,4 @@
-name: lightnet
+name: STD-IDS
 channels:
   - defaults
 dependencies:
@@ -37,6 +37,7 @@ dependencies:
       - networkx==3.0
       - numpy==1.24.1
       - oauthlib==3.2.2
+      - packaging==23.2
       - pillow==9.3.0
       - protobuf==4.24.3
       - pyasn1==0.5.0
@@ -56,4 +57,4 @@ dependencies:
       - urllib3==1.26.13
       - vit-pytorch==1.2.4
       - werkzeug==3.0.0
-prefix: C:\Users\user\anaconda3\envs\lightnet
+prefix: C:\Users\user\anaconda3\envs\STD-IDS
