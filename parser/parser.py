@@ -20,11 +20,11 @@ HYPERPARAMETERS = {}
     type=click.IntRange(0, min_open=True), 
     help="specify the number of classes")
 @click.option(
-    "-is", "--image-size", default=4, show_default=True, 
+    "-is", "--image-size", default=7, show_default=True, 
     type=click.IntRange(0, min_open=True, max_open=True), 
     help="specify the image size")
 @click.option(
-    "-ps", "--patch-size", default=2, show_default=True, 
+    "-ps", "--patch-size", default=7, show_default=True, 
     type=click.IntRange(0, min_open=True, max_open=True), 
     help="specify the patch size")
 @click.option(
