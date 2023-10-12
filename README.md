@@ -1,14 +1,14 @@
 <!-- SDT-IDS: Spatial Data Transformation For Elevating Intrusion Detection Efficiency in IoT Networks
 = -->
 
-- [1. Setup](#1-setup)
+- [1. Environment Setup](#1-environment-setup)
 - [2. Data Preparation](#2-data-preparation)
   - [Data Preprocessing](#data-preprocessing)
   - [Image Data Generation](#image-data-generation)
 - [3. Training](#3-training)
 
 
-## 1. Setup
+## 1. Environment Setup
 ```
 conda env create -f ./environment.yml
 ```
@@ -30,4 +30,5 @@ python main.py -m SimpleViT --data-path path_to_dataset -nc 2 -is 7 -ps 7 -ch \
 1 -dim 8 -md 8 -dp 1 -heads 1 --cuda-id cuda_device_id --batch-size 64 -e 100 \
 --continue-train True --saved-model-path path_to_saved_model
 ```
+Available models for specification can be found in `parser/parser.py`.
 <!-- ## 4. Testing -->
