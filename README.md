@@ -1,11 +1,12 @@
-<!-- SDT-IDS: Spatial Data Transformation For Elevating Intrusion Detection Efficiency in IoT Networks
-= -->
+SDT-IDS: Spatial Data Transformation For Elevating Intrusion Detection Efficiency in IoT Networks
+=
 
-- [1. Environment Setup](#1-environment-setup)
-- [2. Data Preparation](#2-data-preparation)
-  - [Data Preprocessing](#data-preprocessing)
-  - [Image Data Generation](#image-data-generation)
-- [3. Training](#3-training)
+- [SDT-IDS: Spatial Data Transformation For Elevating Intrusion Detection Efficiency in IoT Networks](#sdt-ids-spatial-data-transformation-for-elevating-intrusion-detection-efficiency-in-iot-networks)
+  - [1. Environment Setup](#1-environment-setup)
+  - [2. Data Preparation](#2-data-preparation)
+    - [Data Preprocessing](#data-preprocessing)
+    - [Image Data Generation](#image-data-generation)
+  - [3. Training](#3-training)
 
 
 ## 1. Environment Setup
