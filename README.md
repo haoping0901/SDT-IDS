@@ -23,7 +23,7 @@ Generate input using the code provided by the author of IGTD.
 We provide two example scripts for initiating a new training session and resuming a previous one. The best model will be saved in the `checkpoints/[model_name]/[model_name_with_configuration_and_time_info]/[model_name_epoch_loss_accuracy_best.pth]` directory.
 ```
 # Start a new training session
-python main.py -m SimpleViT --data-path path_to_your_dataset -nc 2 -is 7 -ps 
+python main.py -m SimpleViT --data-path path_to_your_dataset -nc 2 -is 7 -ps \
 7 -ch 1 -dim 8 -md 8 -dp 1 -heads 1 --cuda-id cuda_device_id --batch-size 64 \
 -e 100
 
