@@ -61,35 +61,36 @@ HYPERPARAMETERS = {}
     "--batch-size", default=64, show_default=True, type=click.INT, 
     help="specify the training batch size")
 @click.option(
-    "-e", "--epoch", default=100, show_default=True, type=click.INT, 
-    help="specify the training epoch")
+    "--test-mode", default=0, show_default=True, type=click.INT, 
+    help=("specify the test mode, (0, 1, 2) for (performance, time " 
+          + "elapsed, model_summary) respectively"))
 @click.option(
-    "--continue-train", default=False, show_default=True, 
-    type=click.BOOL, help="continue training: load the latest model")
+    "--test-model-path", type=click.STRING, 
+    help=("specify the path to testing model"))
 @click.option(
-    "--saved-model-path", type=click.STRING, 
-    help="specify the saved model path")
-def set_model( # data_set
-    model, data_path, num_classes, image_size, patch_size, 
-    channel, dim, mlp_dim, depth, heads, dropout, emb_dropout, 
-    cuda_id, batch_size, epoch, continue_train, saved_model_path
-    ) -> dict:
+    "--eval-times", default=5, show_default=True, type=click.INT, 
+    help="specifiy the number of times to measure time consumption")
+def test(
+    model, data_path, num_classes, image_size, patch_size, channel, 
+    dim, mlp_dim, depth, heads, dropout, emb_dropout, cuda_id, 
+    batch_size, test_mode, test_model_path, eval_times) -> dict:
     """Sepcify the model and its hyperparameters."""
-    # config["data_set"] = data_set
+    
     config["data_path"] = data_path
     config["image_size"] = image_size
     config["channel"] = channel
+    config["test_mode"] = test_mode
+    config["test_model_path"] = test_model_path
+    config["eval_times"] = eval_times
     if cuda_id == -1:
         config["device"] = torch.device("cpu")
     else:
         config["device"] = torch.device(cuda_id)
     config["batch_size"] = batch_size
-    config["epoch"] = epoch
     HYPERPARAMETERS["num_classes"] = num_classes
     HYPERPARAMETERS["image_size"] = image_size
     HYPERPARAMETERS["channel"] = channel
     HYPERPARAMETERS["batch_size"] = batch_size
-    HYPERPARAMETERS["epoch"] = epoch
 
     match model:
         case "SimpleViT":
@@ -192,15 +193,8 @@ def set_model( # data_set
                 "Lucid_is" + str(image_size) + "_ch" + str(channel) 
                 + "_nc" + str(num_classes))
     
-    # Load saved model if specified
-    if continue_train:
-        config["model"].load_state_dict(
-            torch.load(saved_model_path, 
-                        map_location=config["device"]))
-        config["epoch"] += int(
-            saved_model_path.split("epo")[1].split('_')[0])
-    config["model_config"] += ("_bs" + str(batch_size) + "_epo" 
-                               + str(config["epoch"]))
+    config["model_config"] += ("_bs" + str(batch_size))
+
     print(f"Model specified: {config['model_name']}")
     print(f"HYPERPARAMETERS spcified: {HYPERPARAMETERS}")
     

@@ -1,13 +1,13 @@
 import torch
 from training import train, data_preprocessing
 import os
-from parser.parser import set_model
+from parser.train_parser import train
 
 torch.manual_seed(42)
 
 if __name__ == "__main__":
     # Set the model from command line arguments
-    config = set_model.main(standalone_mode=False)
+    config = train(standalone_mode=False)
     if config == 0:
         exit()
     
