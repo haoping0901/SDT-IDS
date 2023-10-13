@@ -16,7 +16,7 @@ conda env create -f ./environment.yml
 ```
 ## 2. Data Preparation
 ### Data Preprocessing
-The 'data_preprocessing.py' file in the CICDDoS2019 folder outlines the preprocessing steps for the CICDDoS2019 dataset.
+The `data_preprocessing.py` file in the CICDDoS2019 folder outlines the preprocessing steps for the CICDDoS2019 dataset.
 ### Image Data Generation
 Generate input using the code provided by the author of IGTD.
 ## 3. Training
