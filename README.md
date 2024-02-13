@@ -24,7 +24,7 @@ We provide two example scripts for initiating a new training session and resumin
 ```
 # Start a new training session
 python main.py -m SimpleViT --data-path path_to_your_dataset -nc 2 -is 7 -ps \
-7 -ch 1 -dim 8 -md 8 -dp 1 -heads 1 --cuda-id cuda_device_id --batch-size 64 \
+7 -ch 1 -dim 8 -md 8 -dp 1 --heads 1 --cuda-id cuda_device_id --batch-size 64 \
 -e 100
 
 # Resume the previous training

@@ -1,5 +1,5 @@
 import torch
-from training import train, data_preprocessing
+from training import training, data_preprocessing
 import os
 from parser.train_parser import train
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(config["model"].parameters())
 
     # Start training
-    train.train(
+    training.train(
         data_loader, config["model"], criterion, optimizer, 
         epochs=config["epoch"], device=config["device"], 
         cur_dir=cur_dir, model_name=config["model_name"], 
